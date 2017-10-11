@@ -1,58 +1,41 @@
 ﻿using Oogi2.AspNetCore.Identity.Stores;
 using Oogi2.AspNetCore.Identity.Tests.Fixtures;
-using Microsoft.Azure.Documents;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
+using Oogi2.AspNetCore.Identity.Tests.Entities;
 
 namespace Oogi2.AspNetCore.Identity.Tests
 {
     public abstract class StoreTestsBase : IClassFixture<DocumentDbFixture>
     {
-        protected DocumentDbFixture documentDbFixture;
-        protected Uri collectionUri;
+        protected Repository<TestIdentityUser> _repoUsers;
+        protected Repository<TestIdentityRole> _repoRoles;
+        Connection _connection;
 
         protected StoreTestsBase(DocumentDbFixture documentDbFixture)
         {
-            this.documentDbFixture = documentDbFixture;
+            _connection = documentDbFixture.Connection;
+            _repoUsers = new Repository<TestIdentityUser>(documentDbFixture.Connection);
+            _repoRoles = new Repository<TestIdentityRole>(documentDbFixture.Connection);
         }
 
-        protected void CreateDocument(object document)
+        protected void CreateDocument(TestIdentityUser user)
         {
-            Document doc = this.documentDbFixture.Client.CreateDocumentAsync(collectionUri, document).Result;
+            _repoUsers.Create(user);
         }
 
-        protected DocumentDbUserStore<DocumentDbIdentityUser> CreateUserStore()
+        protected void CreateDocument(TestIdentityRole role)
         {
-            IOptions<DocumentDbOptions> documentDbOptions = Options.Create(new DocumentDbOptions()
-            {
-                Database = documentDbFixture.Database,
-                UserStoreDocumentCollection = documentDbFixture.UserStoreDocumentCollection,
-                RoleStoreDocumentCollection = documentDbFixture.RoleStoreDocumentCollection
-            });
-
-            return new DocumentDbUserStore<DocumentDbIdentityUser>(
-                documentClient: documentDbFixture.Client,
-                options: documentDbOptions,
-                roleStore: new DocumentDbRoleStore<DocumentDbIdentityRole>(
-                    documentClient: documentDbFixture.Client,
-                    options: documentDbOptions)
-                );
+            _repoRoles.Create(role);
         }
 
-        protected DocumentDbRoleStore<DocumentDbIdentityRole> CreateRoleStore()
+        protected DocumentDbUserStore<TestIdentityUser, TestIdentityRole> CreateUserStore()
         {
-            return new DocumentDbRoleStore<DocumentDbIdentityRole>(
-                documentClient: documentDbFixture.Client,
-                options: Options.Create(new DocumentDbOptions()
-                {
-                    Database = documentDbFixture.Database,
-                    UserStoreDocumentCollection = documentDbFixture.UserStoreDocumentCollection,
-                    RoleStoreDocumentCollection = documentDbFixture.RoleStoreDocumentCollection
-                }));
+            return new DocumentDbUserStore<TestIdentityUser, TestIdentityRole>(_connection);
+        }
+
+        protected DocumentDbRoleStore<TestIdentityRole> CreateRoleStore()
+        {
+            return new DocumentDbRoleStore<TestIdentityRole>(_connection);
         }
     }
 }

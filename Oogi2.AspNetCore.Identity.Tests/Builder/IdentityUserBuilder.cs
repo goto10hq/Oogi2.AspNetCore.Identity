@@ -3,19 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Sushi2;
+using Oogi2.AspNetCore.Identity.Tests.Entities;
 
 namespace Oogi2.AspNetCore.Identity.Tests.Builder
 {
     public class DocumentDbIdentityUserBuilder
     {
-        protected DocumentDbIdentityUser identityUser;
+        protected TestIdentityUser identityUser;
 
-        public DocumentDbIdentityUserBuilder(DocumentDbIdentityUser identityUser)
+        public DocumentDbIdentityUserBuilder(TestIdentityUser identityUser)
         {
             this.identityUser = identityUser;
         }
 
-        public static implicit operator DocumentDbIdentityUser(DocumentDbIdentityUserBuilder builder)
+        public static implicit operator TestIdentityUser(DocumentDbIdentityUserBuilder builder)
         {
             return builder.identityUser;
         }
@@ -30,7 +31,7 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
                 email = userName + "@test.at";
             }
 
-            return new DocumentDbIdentityUserBuilder(new DocumentDbIdentityUser()
+            return new DocumentDbIdentityUserBuilder(new TestIdentityUser
             {
                 UserName = userName,
                 Email = userName
@@ -71,13 +72,13 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
             return this;
         }
 
-        public DocumentDbIdentityUserBuilder AddRole(DocumentDbIdentityRole role = null)
+        public DocumentDbIdentityUserBuilder AddRole(TestIdentityRole role = null)
         {
             if (role == null)
             {
                 string newRoleName = Guid.NewGuid().ToString().ToUpper();
 
-                role = new DocumentDbIdentityRole()
+                role = new TestIdentityRole
                 {
                     Id = Guid.NewGuid().ToString().ToUpper(),
                     Name = newRoleName,
@@ -110,13 +111,13 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
                     Guid.NewGuid().ToString()));
             }
 
-            this.identityUser.Logins = logins;
+            identityUser.Logins = logins;
             return this;
         }
 
         public DocumentDbIdentityUserBuilder WithAccessFailedCountOf(int count)
         {
-            this.identityUser.AccessFailedCount = count;
+            identityUser.AccessFailedCount = count;
             return this;
         }
     }

@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace Oogi2.AspNetCore.Identity
 {
-    public class DocumentDbIdentityRole
+    public class IdentityRole
     {
         public string Id { get; set; }
         public string Name { get; set; }

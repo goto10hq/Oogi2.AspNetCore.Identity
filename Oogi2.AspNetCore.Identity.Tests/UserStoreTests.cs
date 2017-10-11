@@ -2,30 +2,29 @@
 using Oogi2.AspNetCore.Identity.Tests.Builder;
 using Oogi2.AspNetCore.Identity.Tests.Fixtures;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Azure.Documents.Client;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Oogi2.AspNetCore.Identity.Tests.Entities;
 
 namespace Oogi2.AspNetCore.Identity.Tests
 {
     [Collection("DocumentDbCollection")]
     public class UserStoreTests : StoreTestsBase
     {
-        public UserStoreTests(DocumentDbFixture documentDbFixture) 
+        public UserStoreTests(DocumentDbFixture documentDbFixture)
             : base(documentDbFixture)
         {
-            this.collectionUri = UriFactory.CreateDocumentCollectionUri(this.documentDbFixture.Database, this.documentDbFixture.UserStoreDocumentCollection);
         }
 
         [Fact]
         public async Task ShouldSetNormalizedUserName()
         {
-            DocumentDbIdentityUser user = DocumentDbIdentityUserBuilder.Create().WithNormalizedUserName();
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
+            TestIdentityUser user = DocumentDbIdentityUserBuilder.Create().WithNormalizedUserName();
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> store = CreateUserStore();
 
             string normalizedUserName = Guid.NewGuid().ToString();
             await store.SetNormalizedUserNameAsync(user, normalizedUserName, CancellationToken.None);
@@ -36,13 +35,13 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnAllUsersWithAdminRoleClaim()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
+            var store = CreateUserStore();
 
             string adminRoleValue = Guid.NewGuid().ToString();
 
-            DocumentDbIdentityUser<DocumentDbIdentityRole> firstAdmin = DocumentDbIdentityUserBuilder.Create().WithId().AddClaim(ClaimTypes.Role, adminRoleValue).AddClaim();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> secondAdmin = DocumentDbIdentityUserBuilder.Create().WithId().AddClaim(ClaimTypes.Role, adminRoleValue).AddClaim().AddClaim();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> thirdAdmin = DocumentDbIdentityUserBuilder.Create().WithId().AddClaim(ClaimTypes.Role, adminRoleValue);
+            TestIdentityUser firstAdmin = DocumentDbIdentityUserBuilder.Create().WithId().AddClaim(ClaimTypes.Role, adminRoleValue).AddClaim();
+            TestIdentityUser secondAdmin = DocumentDbIdentityUserBuilder.Create().WithId().AddClaim(ClaimTypes.Role, adminRoleValue).AddClaim().AddClaim();
+            TestIdentityUser thirdAdmin = DocumentDbIdentityUserBuilder.Create().WithId().AddClaim(ClaimTypes.Role, adminRoleValue);
 
             CreateDocument(firstAdmin);
             CreateDocument(secondAdmin);
@@ -52,8 +51,8 @@ namespace Oogi2.AspNetCore.Identity.Tests
             CreateDocument(thirdAdmin);
             CreateDocument(DocumentDbIdentityUserBuilder.Create().AddClaim().AddClaim().AddClaim().AddClaim());
 
-            IList<DocumentDbIdentityUser> adminUsers = await store.GetUsersForClaimAsync(new Claim(ClaimTypes.Role, adminRoleValue), CancellationToken.None);
-            
+            IList<TestIdentityUser> adminUsers = await store.GetUsersForClaimAsync(new Claim(ClaimTypes.Role, adminRoleValue), CancellationToken.None);
+
             Assert.Collection(
                 adminUsers,
                 u => u.Id.Equals(firstAdmin.Id),
@@ -64,15 +63,15 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnUserByLoginProvider()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithUserLoginInfo(amount: 3);
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> store = CreateUserStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithUserLoginInfo(amount: 3);
             UserLoginInfo targetLogin = targetUser.Logins[1];
 
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithUserLoginInfo(amount: 2));
             CreateDocument(targetUser);
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithUserLoginInfo(amount: 2));
 
-            DocumentDbIdentityUser<DocumentDbIdentityRole> foundUser = await store.FindByLoginAsync(targetLogin.LoginProvider, targetLogin.ProviderKey, CancellationToken.None);
+            IdentityUser<TestIdentityRole> foundUser = await store.FindByLoginAsync(targetLogin.LoginProvider, targetLogin.ProviderKey, CancellationToken.None);
 
             Assert.Equal(targetUser.Id, foundUser.Id);
         }
@@ -80,13 +79,13 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnAllUsersWithAdminRole()
         {
-            DocumentDbIdentityRole adminRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            TestIdentityRole adminRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
 
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> store = CreateUserStore();
 
-            DocumentDbIdentityUser<DocumentDbIdentityRole> firstAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole).AddRole();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> secondAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole).AddRole().AddRole();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> thirdAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole);
+            TestIdentityUser firstAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole).AddRole();
+            TestIdentityUser secondAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole).AddRole().AddRole();
+            TestIdentityUser thirdAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole);
 
             CreateDocument(firstAdmin);
             CreateDocument(secondAdmin);
@@ -96,7 +95,7 @@ namespace Oogi2.AspNetCore.Identity.Tests
             CreateDocument(DocumentDbIdentityUserBuilder.Create());
             CreateDocument(DocumentDbIdentityUserBuilder.Create().AddRole());
 
-            IList<DocumentDbIdentityUser> adminUsers = await store.GetUsersInRoleAsync(adminRole.NormalizedName, CancellationToken.None);
+            IList<TestIdentityUser> adminUsers = await store.GetUsersInRoleAsync(adminRole.NormalizedName, CancellationToken.None);
 
             Assert.Collection(
                 adminUsers,
@@ -108,14 +107,14 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnNoUsersWithAdminRoleWhenPassingNotNormalizedRoleNameToGetUsersInRole()
         {
-            DocumentDbIdentityRole adminRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> firstAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole).AddRole();
+            TestIdentityRole adminRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> store = CreateUserStore();
+            TestIdentityUser firstAdmin = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName().AddRole(adminRole).AddRole();
 
             CreateDocument(firstAdmin);
             CreateDocument(DocumentDbIdentityUserBuilder.Create().AddRole().AddRole());
 
-            IList<DocumentDbIdentityUser> adminUsers = await store.GetUsersInRoleAsync(adminRole.Name, CancellationToken.None);
+            IList<TestIdentityUser> adminUsers = await store.GetUsersInRoleAsync(adminRole.Name, CancellationToken.None);
 
             Assert.Empty(adminUsers);
         }
@@ -123,15 +122,15 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnUserBySpecificEmail()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedEmail();
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> store = CreateUserStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedEmail();
 
             CreateDocument(DocumentDbIdentityUserBuilder.Create());
             CreateDocument(targetUser);
             CreateDocument(DocumentDbIdentityUserBuilder.Create());
             CreateDocument(DocumentDbIdentityUserBuilder.Create());
 
-            DocumentDbIdentityUser<DocumentDbIdentityRole> foundUser = await store.FindByEmailAsync(targetUser.NormalizedEmail, CancellationToken.None);
+            IdentityUser<TestIdentityRole> foundUser = await store.FindByEmailAsync(targetUser.NormalizedEmail, CancellationToken.None);
 
             Assert.Equal(targetUser.Id, foundUser.Id);
         }
@@ -141,8 +140,8 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [InlineData(5)]
         public async Task ShouldIncreaseAccessFailedCountBy1(int accessFailedCount)
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithAccessFailedCountOf(accessFailedCount);
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> store = CreateUserStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithAccessFailedCountOf(accessFailedCount);
 
             await store.IncrementAccessFailedCountAsync(targetUser, CancellationToken.None);
 
@@ -155,8 +154,8 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [InlineData(0)]
         public async Task ShouldResetAccessFailedCountToZero(int accessFailedCount)
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> store = CreateUserStore();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithAccessFailedCountOf(accessFailedCount);
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> store = CreateUserStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithAccessFailedCountOf(accessFailedCount);
 
             await store.ResetAccessFailedCountAsync(targetUser, CancellationToken.None);
 
@@ -166,10 +165,10 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldAddUserToRole()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbRoleStore<DocumentDbIdentityRole> roleStore = CreateRoleStore();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create();
-            DocumentDbIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create("RoleName").WithId().WithNormalizedRoleName();
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> userStore = CreateUserStore();
+            DocumentDbRoleStore<TestIdentityRole> roleStore = CreateRoleStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create();
+            TestIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create("RoleName").WithId().WithNormalizedRoleName();
 
             // Create sample data role
             await roleStore.CreateAsync(targetRole, CancellationToken.None);
@@ -183,14 +182,14 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldThrowExceptionOnAddingUserToNonexistantRole()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbRoleStore<DocumentDbIdentityRole> roleStore = CreateRoleStore();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create();
-            DocumentDbIdentityRole someNotTargetedRole = DocumentDbIdentityRoleBuilder.Create().WithId().WithNormalizedRoleName();
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> userStore = CreateUserStore();
+            DocumentDbRoleStore<TestIdentityRole> roleStore = CreateRoleStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create();
+            TestIdentityRole someNotTargetedRole = DocumentDbIdentityRoleBuilder.Create().WithId().WithNormalizedRoleName();
 
             // Create a role so there is a differently named role in the store
             await roleStore.CreateAsync(someNotTargetedRole, CancellationToken.None);
-            
+
             // Add the user to a role name different than the role created before, expecting an exception
             await Assert.ThrowsAsync(typeof(ArgumentException), async () => await userStore.AddToRoleAsync(targetUser, "NotExistantRole", CancellationToken.None));
         }
@@ -198,10 +197,10 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldThrowExceptionWhenPassingNotNormalizedNameToAddToRole()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbRoleStore<DocumentDbIdentityRole> roleStore = CreateRoleStore();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create();
-            DocumentDbIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create().WithId().WithNormalizedRoleName();
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> userStore = CreateUserStore();
+            DocumentDbRoleStore<TestIdentityRole> roleStore = CreateRoleStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create();
+            TestIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create().WithId().WithNormalizedRoleName();
 
             // Create sample data role
             await roleStore.CreateAsync(targetRole, CancellationToken.None);
@@ -213,10 +212,10 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldRemoveRoleFromUser()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbIdentityRole firstRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
-            DocumentDbIdentityRole secondRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(firstRole).AddRole(secondRole);
+            DocumentDbUserStore<TestIdentityUser, TestIdentityRole> userStore = CreateUserStore();
+            TestIdentityRole firstRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            TestIdentityRole secondRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(firstRole).AddRole(secondRole);
 
             // Remove the second role
             await userStore.RemoveFromRoleAsync(targetUser, secondRole.NormalizedName, CancellationToken.None);
@@ -229,26 +228,26 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldNotRemoveRoleFromUserWhenPassingNotNormalizedRoleNameToRemoveFromRole()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbIdentityRole firstRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
-            DocumentDbIdentityRole secondRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(firstRole).AddRole(secondRole);
+            var userStore = CreateUserStore();
+            TestIdentityRole firstRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            TestIdentityRole secondRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(firstRole).AddRole(secondRole);
 
             // Try remove the second role with a not normalized role name
             await userStore.RemoveFromRoleAsync(targetUser, secondRole.Name, CancellationToken.None);
 
             // Assert both roles are still here, as lookup without normalized name should have failed
-            Assert.Collection(targetUser.Roles, 
-                r => r.NormalizedName.Equals(firstRole.NormalizedName), 
+            Assert.Collection(targetUser.Roles,
+                r => r.NormalizedName.Equals(firstRole.NormalizedName),
                 r => r.NormalizedName.Equals(secondRole.NormalizedName));
         }
 
         [Fact]
         public async Task ShouldReturnUserIsInRole()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(targetRole).AddRole();
+            var userStore = CreateUserStore();
+            TestIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(targetRole).AddRole();
 
             bool isInRole = await userStore.IsInRoleAsync(targetUser, targetRole.NormalizedName, CancellationToken.None);
 
@@ -258,8 +257,8 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnUserIsNotInRole()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole().AddRole();
+            var userStore = CreateUserStore();
+            var targetUser = DocumentDbIdentityUserBuilder.Create().AddRole().AddRole();
 
             bool isInRole = await userStore.IsInRoleAsync(targetUser, "NonExistantRoleName", CancellationToken.None);
 
@@ -269,9 +268,9 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnUserIsNotInRoleWhenPassingNotNormalizedRoleNameToIsInRole()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(targetRole).AddRole();
+            var userStore = CreateUserStore();
+            TestIdentityRole targetRole = DocumentDbIdentityRoleBuilder.Create().WithNormalizedRoleName();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().AddRole(targetRole).AddRole();
 
             // Pass not normalized name which should lead to not locating the target role
             bool isInRole = await userStore.IsInRoleAsync(targetUser, targetRole.Name, CancellationToken.None);
@@ -282,15 +281,15 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnUserByUserName()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName();
+            var userStore = CreateUserStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName();
 
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName());
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName());
             CreateDocument(targetUser);
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedUserName());
 
-            DocumentDbIdentityUser<DocumentDbIdentityRole> foundUser = await userStore.FindByNameAsync(targetUser.NormalizedUserName, CancellationToken.None);
+            TestIdentityUser foundUser = await userStore.FindByNameAsync(targetUser.NormalizedUserName, CancellationToken.None);
 
             Assert.Equal(targetUser.Id, foundUser.Id);
         }
@@ -298,15 +297,15 @@ namespace Oogi2.AspNetCore.Identity.Tests
         [Fact]
         public async Task ShouldReturnUserByEmail()
         {
-            DocumentDbUserStore<DocumentDbIdentityUser> userStore = CreateUserStore();
-            DocumentDbIdentityUser<DocumentDbIdentityRole> targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedEmail();
+            var userStore = CreateUserStore();
+            TestIdentityUser targetUser = DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedEmail();
 
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedEmail());
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedEmail());
             CreateDocument(targetUser);
             CreateDocument(DocumentDbIdentityUserBuilder.Create().WithId().WithNormalizedEmail());
 
-            DocumentDbIdentityUser<DocumentDbIdentityRole> foundUser = await userStore.FindByEmailAsync(targetUser.NormalizedEmail, CancellationToken.None);
+            IdentityUser<TestIdentityRole> foundUser = await userStore.FindByEmailAsync(targetUser.NormalizedEmail, CancellationToken.None);
 
             Assert.Equal(targetUser.Id, foundUser.Id);
         }

@@ -6,16 +6,16 @@ using System.Security.Claims;
 namespace Oogi2.AspNetCore.Identity
 {
     /// <summary>
-    /// Represents a user in the identity system for the <see cref="Stores.DocumentDbUserStore{TUser, TRole}"/> with the role type defaulted to <see cref="DocumentDbIdentityRole"/>
+    /// Represents a user in the identity system for the <see cref="Stores.DocumentDbUserStore{TUser, TRole}"/> with the role type defaulted to <see cref="IdentityRole"/>
     /// </summary>
-    public class DocumentDbIdentityUser : DocumentDbIdentityUser<DocumentDbIdentityRole>
+    public class IdentityUser : IdentityUser<IdentityRole>
     {
     }
 
     /// <summary>
     /// Represents a user in the identity system for the <see cref="Stores.DocumentDbUserStore{TUser, TRole}"/>
     /// </summary>
-    public class DocumentDbIdentityUser<TRole>
+    public class IdentityUser<TRole>
     {
         public string Id { get; set; }
         public string UserName { get; set; }

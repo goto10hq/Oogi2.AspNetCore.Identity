@@ -15,7 +15,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
     /// </summary>
     /// <typeparam name="TRole">The type representing a role</typeparam>
     public class DocumentDbRoleStore<TRole> : StoreBase, IRoleClaimStore<TRole>
-        where TRole : DocumentDbIdentityRole
+        where TRole : IdentityRole
     {
         Repository<TRole> _repository;
 

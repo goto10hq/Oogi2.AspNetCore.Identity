@@ -2,17 +2,17 @@
 
 namespace Oogi2.AspNetCore.Identity.Tests.Comparer
 {
-    public class DocumentDbIdentityRoleComparer : IEqualityComparer<DocumentDbIdentityRole>
+    public class DocumentDbIdentityRoleComparer : IEqualityComparer<IdentityRole>
     {
-        public bool Equals(DocumentDbIdentityRole x, DocumentDbIdentityRole y)
+        public bool Equals(IdentityRole x, IdentityRole y)
         {
             return x.Id.Equals(y.Id)
                 && string.Equals(x.Name, y.Name)
-                && string.Equals(x.NormalizedName, y.NormalizedName)
-                && x.DocumentType.Equals(y.DocumentType);
+                && string.Equals(x.NormalizedName, y.NormalizedName);
+            //&& x.DocumentType.Equals(y.DocumentType);
         }
 
-        public int GetHashCode(DocumentDbIdentityRole obj)
+        public int GetHashCode(IdentityRole obj)
         {
             return 1;
         }

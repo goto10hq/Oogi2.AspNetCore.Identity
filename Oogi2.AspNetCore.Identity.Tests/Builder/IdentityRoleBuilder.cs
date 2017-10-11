@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Security.Claims;
 using Sushi2;
+using Oogi2.AspNetCore.Identity.Tests.Entities;
 
 namespace Oogi2.AspNetCore.Identity.Tests.Builder
 {
     public class DocumentDbIdentityRoleBuilder
     {
-        protected DocumentDbIdentityRole identityRole;
+        protected TestIdentityRole identityRole;
 
-        public DocumentDbIdentityRoleBuilder(DocumentDbIdentityRole identityRole)
+        public DocumentDbIdentityRoleBuilder(TestIdentityRole identityRole)
         {
             this.identityRole = identityRole;
         }
 
-        public static implicit operator DocumentDbIdentityRole(DocumentDbIdentityRoleBuilder builder)
+        public static implicit operator TestIdentityRole(DocumentDbIdentityRoleBuilder builder)
         {
             return builder.identityRole;
         }
@@ -25,7 +26,7 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
                 roleName = Guid.NewGuid().ToString().ToUpper();
             }
 
-            return new DocumentDbIdentityRoleBuilder(new DocumentDbIdentityRole()
+            return new DocumentDbIdentityRoleBuilder(new TestIdentityRole
             {
                 Name = roleName
             });

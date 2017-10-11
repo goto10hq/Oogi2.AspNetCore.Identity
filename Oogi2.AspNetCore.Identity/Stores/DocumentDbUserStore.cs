@@ -14,11 +14,11 @@ using Oogi2.Queries;
 namespace Oogi2.AspNetCore.Identity.Stores
 {
     /// <summary>
-    /// Represents a DocumentDb-based persistence store for ASP.NET Core Identity users with the role type defaulted to <see cref="DocumentDbIdentityRole"/>
+    /// Represents a DocumentDb-based persistence store for ASP.NET Core Identity users with the role type defaulted to <see cref="IdentityRole"/>
     /// </summary>
     /// <typeparam name="TUser">The type representing a user</typeparam>
-    public class DocumentDbUserStore<TUser> : DocumentDbUserStore<TUser, DocumentDbIdentityRole>
-        where TUser : DocumentDbIdentityUser
+    public class DocumentDbUserStore<TUser> : DocumentDbUserStore<TUser, IdentityRole>
+        where TUser : IdentityUser
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DocumentDbUserStore{TUser}"/>
@@ -47,8 +47,8 @@ namespace Oogi2.AspNetCore.Identity.Stores
         IUserPhoneNumberStore<TUser>,
         IUserEmailStore<TUser>,
         IUserLockoutStore<TUser>
-        where TUser : DocumentDbIdentityUser<TRole>
-        where TRole : DocumentDbIdentityRole
+        where TUser : IdentityUser<TRole>
+        where TRole : IdentityRole
     {
         IRoleStore<TRole> _roleStore;
         Repository<TUser> _repository;
