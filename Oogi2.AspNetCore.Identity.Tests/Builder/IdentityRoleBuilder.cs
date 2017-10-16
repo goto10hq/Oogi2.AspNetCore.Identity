@@ -40,7 +40,10 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
 
         public DocumentDbIdentityRoleBuilder WithNormalizedRoleName(string normalizedRoleName = null)
         {
-            identityRole.NormalizedName = normalizedRoleName.ToNormalizedString();
+            LookupNormalizer normalizer = new LookupNormalizer();
+
+            identityRole.NormalizedName = normalizedRoleName ?? normalizer.Normalize(identityRole.Name);
+
             return this;
         }
 

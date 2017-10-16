@@ -2,7 +2,7 @@
 
 namespace Oogi2.AspNetCore.Identity.Tests.Entities
 {
-    [EntityType("entity", "oogi2/user")]
+    [EntityType("entity", "oogi2/role")]
     public class TestIdentityRole : IdentityRole
     {
     }

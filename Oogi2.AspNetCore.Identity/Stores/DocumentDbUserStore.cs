@@ -5,9 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Security.Claims;
-using Microsoft.Azure.Documents;
-using System.Net;
-using Oogi2;
 using Sushi2;
 using Oogi2.Queries;
 
@@ -52,6 +49,12 @@ namespace Oogi2.AspNetCore.Identity.Stores
     {
         IRoleStore<TRole> _roleStore;
         Repository<TUser> _repository;
+        Repository<SubUser<TUser>> _subRepository;
+
+        class SubUser<TSub>
+        {
+            public TSub C { get; set; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DocumentDbUserStore{TUser, TRole}"/>
@@ -61,7 +64,8 @@ namespace Oogi2.AspNetCore.Identity.Stores
             : base(connection)
         {
             _repository = new Repository<TUser>(connection);
-            //_repositoryRoles = new Repository<TRole>(connection);
+            _roleStore = new DocumentDbRoleStore<TRole>(connection);
+            _subRepository = new Repository<SubUser<TUser>>(connection);
         }
 
         public async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
@@ -287,9 +291,11 @@ namespace Oogi2.AspNetCore.Identity.Stores
                }
                );
 
-            var users = await _repository.GetListAsync(dynamicQuery);
+            var s = dynamicQuery.ToSqlQuerySpec().ToSqlQuery();
 
-            return users;
+            var users = await _subRepository.GetListAsync(dynamicQuery);
+
+            return users.Select(x => x.C).ToList();
         }
 
         public Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken)
@@ -362,9 +368,9 @@ namespace Oogi2.AspNetCore.Identity.Stores
                }
                );
 
-            var user = await _repository.GetFirstOrDefaultAsync(dynamicQuery);
+            var user = await _subRepository.GetFirstOrDefaultAsync(dynamicQuery);
 
-            return user;
+            return user?.C;
         }
 
         public async Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken)
@@ -445,16 +451,16 @@ namespace Oogi2.AspNetCore.Identity.Stores
 
             var dynamicQuery = new DynamicQuery
             (
-            $@"select c from c join l in c.roles where and r.normalizedRoleName = @normalizedRoleName {EntityTypeConstraint}",
+            $@"select c from c join r in c.roles where r.normalizedName = @normalizedRoleName {EntityTypeConstraint}",
             new
             {
                 normalizedRoleName
             }
             );
 
-            var result = await _repository.GetListAsync(dynamicQuery);
+            var result = await _subRepository.GetListAsync(dynamicQuery);
 
-            return result;
+            return result.Select(x => x.C).ToList();
         }
 
         public Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken)
@@ -771,7 +777,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
         {
             get
             {
-                var atr = typeof(TRole).GetAttribute<Oogi2.Attributes.EntityType>();
+                var atr = typeof(TUser).GetAttribute<Attributes.EntityType>();
 
                 if (atr != null)
                 {

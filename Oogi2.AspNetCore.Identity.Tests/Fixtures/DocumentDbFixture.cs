@@ -24,8 +24,6 @@ namespace Oogi2.AspNetCore.Identity.Tests.Fixtures
 
         void CreateTestDatabase()
         {
-            CleanupTestDatabase();
-
             Connection.CreateCollection();
         }
 

@@ -46,7 +46,9 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
 
         public DocumentDbIdentityUserBuilder WithNormalizedUserName()
         {
-            identityUser.NormalizedUserName = identityUser.UserName.ToNormalizedString();
+            LookupNormalizer normalizer = new LookupNormalizer();
+
+            identityUser.NormalizedUserName = normalizer.Normalize(identityUser.UserName);
             return this;
         }
 
@@ -76,13 +78,14 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
         {
             if (role == null)
             {
+                LookupNormalizer normalizer = new LookupNormalizer();
                 string newRoleName = Guid.NewGuid().ToString().ToUpper();
 
                 role = new TestIdentityRole
                 {
                     Id = Guid.NewGuid().ToString().ToUpper(),
                     Name = newRoleName,
-                    NormalizedName = newRoleName.ToNormalizedString()
+                    NormalizedName = normalizer.Normalize(newRoleName)
                 };
             }
             else
@@ -95,7 +98,9 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
 
         public DocumentDbIdentityUserBuilder WithNormalizedEmail()
         {
-            identityUser.NormalizedEmail = identityUser.Email.ToNormalizedString();
+            LookupNormalizer normalizer = new LookupNormalizer();
+
+            identityUser.NormalizedEmail = normalizer.Normalize(identityUser.Email);
             return this;
         }
 

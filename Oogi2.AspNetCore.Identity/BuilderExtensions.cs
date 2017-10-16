@@ -16,6 +16,8 @@ namespace Oogi2.AspNetCore.Identity
                 typeof(IUserStore<>).MakeGenericType(builder.UserType),
                 typeof(DocumentDbUserStore<,>).MakeGenericType(builder.UserType, builder.RoleType));
 
+            builder.Services.AddTransient<ILookupNormalizer, LookupNormalizer>();
+
             return builder;
         }
     }
