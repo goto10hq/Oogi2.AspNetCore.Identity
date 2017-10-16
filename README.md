@@ -8,7 +8,7 @@
 [![Visual Studio Team services](https://img.shields.io/vso/build/frohikey/c3964e53-4bf3-417a-a96e-661031ef862f/128.svg?style=flat-square)](https://github.com/goto10hq/Oogi2.AspNetCore.Identity)
 [![.NETStandard 2.0](https://img.shields.io/badge/.NETStandard-2.0-blue.svg)](https://github.com/dotnet/standard/blob/master/docs/versions/netstandard2.0.md)
 
-ASP.NET Core Identity with DocumentDB (CosmosDB) as database layer. It uses [Oogi2](https://github.com/goto10hq/Oogi2).
+ASP.NET Core Identity with DocumentDB (CosmosDB) as database layer. It is powered by [Oogi2](https://github.com/goto10hq/Oogi2).
 
 # Configuration
 
