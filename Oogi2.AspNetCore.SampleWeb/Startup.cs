@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Oogi2.AspNetCore.SampleWeb.Services;
 using Oogi2.AspNetCore.Identity;
 using Oogi2.AspNetCore.SampleWeb.Models;
+using Oogi2.AspNetCore.Identity.IdentityErrorDescribers;
 
 namespace Oogi2.AspNetCore.SampleWeb
 {
@@ -37,6 +38,7 @@ namespace Oogi2.AspNetCore.SampleWeb
                 options.Password.RequireUppercase = false;
             })
                 .AddDocumentDbStores()
+                .AddErrorDescriber<CzechIdentityErrorDescriber>()
                 .AddDefaultTokenProviders();
 
             // Add application services.
