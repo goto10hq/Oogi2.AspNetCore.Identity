@@ -80,6 +80,9 @@ namespace Oogi2.AspNetCore.Identity.Stores
 
             var result = await _repository.CreateAsync(user);
 
+            if (result != null)
+                user.Id = result.Id;
+
             return result != null ? IdentityResult.Success : IdentityResult.Failed();
         }
 
