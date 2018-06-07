@@ -388,7 +388,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
                 throw new ArgumentNullException(nameof(normalizedRoleName));
 
             // Check if the given role name exists
-            TRole foundRole = await _roleStore.FindByNameAsync(normalizedRoleName, cancellationToken);
+            TRole foundRole = await _roleStore.FindByNameAsync(normalizedRoleName, cancellationToken).ConfigureAwait(false);
 
             if (foundRole == null)
                 throw new ArgumentException(nameof(normalizedRoleName), $"The role with the given name {normalizedRoleName} does not exist");
@@ -461,7 +461,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
             }
             );
 
-            var result = await _subRepository.GetListAsync(dynamicQuery);
+            var result = await _subRepository.GetListAsync(dynamicQuery).ConfigureAwait(false);
 
             return result.Select(x => x.C).ToList();
         }
@@ -662,7 +662,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
                }
                );
 
-            var user = await _repository.GetFirstOrDefaultAsync(dynamicQuery);
+            var user = await _repository.GetFirstOrDefaultAsync(dynamicQuery).ConfigureAwait(false);
 
             return user;
         }

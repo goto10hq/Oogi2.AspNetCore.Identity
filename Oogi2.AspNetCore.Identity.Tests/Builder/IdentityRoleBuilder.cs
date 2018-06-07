@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Sushi2;
 using Oogi2.AspNetCore.Identity.Tests.Entities;
+using System.Globalization;
 
 namespace Oogi2.AspNetCore.Identity.Tests.Builder
 {
@@ -23,7 +24,7 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
         {
             if (roleName == null)
             {
-                roleName = Guid.NewGuid().ToString().ToUpper();
+                roleName = Guid.NewGuid().ToString().ToUpper(CultureInfo.InvariantCulture);
             }
 
             return new DocumentDbIdentityRoleBuilder(new TestIdentityRole
@@ -34,7 +35,7 @@ namespace Oogi2.AspNetCore.Identity.Tests.Builder
 
         public DocumentDbIdentityRoleBuilder WithId(string id = null)
         {
-            identityRole.Id = id ?? Guid.NewGuid().ToString().ToUpper();
+            identityRole.Id = id ?? Guid.NewGuid().ToString().ToUpper(CultureInfo.InvariantCulture);
             return this;
         }
 

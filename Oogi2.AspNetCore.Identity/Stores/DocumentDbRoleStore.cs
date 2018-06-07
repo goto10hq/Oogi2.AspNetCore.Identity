@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Security.Claims;
-using Oogi2;
 using Oogi2.Queries;
 using Sushi2;
 
@@ -98,7 +97,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
                 role.Id = Guid.NewGuid().ToString();
             }
 
-            var result = await _repository.CreateAsync(role);
+            var result = await _repository.CreateAsync(role).ConfigureAwait(false);
 
             return result != null ? IdentityResult.Success : IdentityResult.Failed();
         }
@@ -111,7 +110,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
             if (role == null)
                 throw new ArgumentNullException(nameof(role));
 
-            var result = await _repository.ReplaceAsync(role);
+            var result = await _repository.ReplaceAsync(role).ConfigureAwait(false);
 
             return result == null ? IdentityResult.Failed() : IdentityResult.Success;
         }
@@ -124,7 +123,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
             if (role == null)
                 throw new ArgumentNullException(nameof(role));
 
-            var result = await _repository.DeleteAsync(role);
+            var result = await _repository.DeleteAsync(role).ConfigureAwait(false);
 
             return result ? IdentityResult.Success : IdentityResult.Failed();
         }
@@ -196,7 +195,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
             if (roleId == null)
                 throw new ArgumentNullException(nameof(roleId));
 
-            var role = await _repository.GetFirstOrDefaultAsync(roleId);
+            var role = await _repository.GetFirstOrDefaultAsync(roleId).ConfigureAwait(false);
 
             return role;
         }
@@ -218,7 +217,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
                 }
                 );
 
-            var role = await _repository.GetFirstOrDefaultAsync(dynamicQuery);
+            var role = await _repository.GetFirstOrDefaultAsync(dynamicQuery).ConfigureAwait(false);
 
             return role;
         }
