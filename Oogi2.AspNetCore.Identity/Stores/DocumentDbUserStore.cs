@@ -780,7 +780,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
         {
             get
             {
-                var atr = typeof(TUser).GetAttribute<Attributes.EntityType>();
+                var atr = typeof(TUser).GetAttribute<Attributes.EntityTypeAttribute>();
 
                 if (atr != null)
                 {

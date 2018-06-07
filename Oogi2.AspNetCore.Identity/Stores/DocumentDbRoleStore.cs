@@ -227,7 +227,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
         {
             get
             {
-                var atr = typeof(TRole).GetAttribute<Oogi2.Attributes.EntityType>();
+                var atr = typeof(TRole).GetAttribute<Attributes.EntityTypeAttribute>();
 
                 if (atr != null)
                 {

@@ -10,3 +10,4 @@
 /.vs/config
 /Oogi2.AspNetCore.SampleWeb/bin/Debug/netcoreapp2.0
 /Oogi2.AspNetCore.SampleWeb/obj
+/.vs/Oogi2.AspNetCore.Identity/DesignTimeBuild
