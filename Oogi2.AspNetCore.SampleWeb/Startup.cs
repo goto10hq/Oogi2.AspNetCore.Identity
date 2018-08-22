@@ -53,7 +53,6 @@ namespace Oogi2.AspNetCore.SampleWeb
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
             }
             else
             {
