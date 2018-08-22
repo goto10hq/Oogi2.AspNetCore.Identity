@@ -78,7 +78,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var result = await _repository.CreateAsync(user);
+            var result = await _repository.CreateAsync(user).ConfigureAwait(false);
 
             if (result != null)
                 user.Id = result.Id;
@@ -94,12 +94,12 @@ namespace Oogi2.AspNetCore.Identity.Stores
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
-            var result = await _repository.DeleteAsync(user.Id);
+            var result = await _repository.DeleteAsync(user.Id).ConfigureAwait(false);
 
             return result ? IdentityResult.Success : IdentityResult.Failed();
         }
 
-        public async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
+        public Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -107,12 +107,10 @@ namespace Oogi2.AspNetCore.Identity.Stores
             if (userId == null)
                 throw new ArgumentNullException(nameof(userId));
 
-            var result = await _repository.GetFirstOrDefaultAsync(userId);
-
-            return result;
+            return _repository.GetFirstOrDefaultAsync(userId);
         }
 
-        public async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -129,9 +127,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
                }
                );
 
-            var user = await _repository.GetFirstOrDefaultAsync(dynamicQuery);
-
-            return user;
+            return _repository.GetFirstOrDefaultAsync(dynamicQuery);
         }
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
@@ -201,7 +197,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
-            var result = await _repository.ReplaceAsync(user);
+            var result = await _repository.ReplaceAsync(user).ConfigureAwait(false);
 
             return result == null ? IdentityResult.Failed() : IdentityResult.Success;
         }
@@ -286,7 +282,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
 
             var dynamicQuery = new DynamicQuery
                (
-               $@"select c from c join l in c.claims where l.type = @type and l['value'] = @value {EntityTypeConstraint}",
+               $"select c from c join l in c.claims where l.type = @type and l['value'] = @value {EntityTypeConstraint}",
                new
                {
                    type = claim.Type,
@@ -296,7 +292,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
 
             var s = dynamicQuery.ToSqlQuerySpec().ToSqlQuery();
 
-            var users = await _subRepository.GetListAsync(dynamicQuery);
+            var users = await _subRepository.GetListAsync(dynamicQuery).ConfigureAwait(false);
 
             return users.Select(x => x.C).ToList();
         }
@@ -363,7 +359,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
 
             var dynamicQuery = new DynamicQuery
                (
-               $@"select top 1 c from c join l in c.logins where l.loginProvider = @loginProvider and l.providerKey = @providerKey {EntityTypeConstraint}",
+               $"select top 1 c from c join l in c.logins where l.loginProvider = @loginProvider and l.providerKey = @providerKey {EntityTypeConstraint}",
                new
                {
                    loginProvider,
@@ -371,7 +367,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
                }
                );
 
-            var user = await _subRepository.GetFirstOrDefaultAsync(dynamicQuery);
+            var user = await _subRepository.GetFirstOrDefaultAsync(dynamicQuery).ConfigureAwait(false);
 
             return user?.C;
         }
@@ -454,7 +450,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
 
             var dynamicQuery = new DynamicQuery
             (
-            $@"select c from c join r in c.roles where r.normalizedName = @normalizedRoleName {EntityTypeConstraint}",
+            $"select c from c join r in c.roles where r.normalizedName = @normalizedRoleName {EntityTypeConstraint}",
             new
             {
                 normalizedRoleName
