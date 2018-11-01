@@ -308,6 +308,6 @@ namespace Oogi2.AspNetCore.Identity.Tests
             IdentityUser<TestIdentityRole> foundUser = await userStore.FindByEmailAsync(targetUser.NormalizedEmail, CancellationToken.None);
 
             Assert.Equal(targetUser.Id, foundUser.Id);
-        }
+        }        
     }
 }

@@ -470,7 +470,7 @@ namespace Oogi2.AspNetCore.Identity.Stores
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
-            user.PasswordHash = passwordHash ?? throw new ArgumentNullException(nameof(passwordHash));
+            user.PasswordHash = passwordHash; // ?? throw new ArgumentNullException(nameof(passwordHash));
 
             return Task.CompletedTask;
         }
