@@ -56,8 +56,6 @@ If you wanna know more about ``EntityType`` attribute, check [Oogi2](https://git
 
 And voila... that's all. EZPZ.
 
-Full sample web can be found [here](https://github.com/goto10hq/Oogi2.AspNetCore.Identity/tree/master/Oogi2.AspNetCore.SampleWeb)
-
 ## Acknowledgement
 
 Based on [AspNetCore.Identity.DocumentDb](https://github.com/codekoenig/AspNetCore.Identity.DocumentDb) by [codekoenig](https://github.com/codekoenig)
