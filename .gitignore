@@ -13,3 +13,4 @@
 /.vs/Oogi2.AspNetCore.Identity/DesignTimeBuild
 /Oogi2.AspNetCore.Identity.Tests/bin/Debug/netcoreapp2.1
 /Oogi2.AspNetCore.SampleWeb/bin/Debug/netcoreapp2.1
+/Oogi2.AspNetCore.SampleWeb/bin/Debug/netcoreapp2.2
