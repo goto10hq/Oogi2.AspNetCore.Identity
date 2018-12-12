@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Oogi2.AspNetCore.Identity</PackageId>
     <Title>Oogi2.AspNetCore.Identity</Title>
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
     <Authors>frohikey</Authors>
     <PackageLicenseUrl>https://github.com/goto10hq/Oogi2.AspNetCore.Identity/blob/master/LICENSE</PackageLicenseUrl>
     <Owners>Goto10</Owners>
@@ -12,12 +12,12 @@
     <Summary>ASP.NET Core Identity for DocumentDB based on Oogi2.</Summary>
     <Description>ASP.NET Core Identity for Cosmos/DocumentDB powered by Oogi2.</Description>
     <PackageTags>documentdb asp.net core identity</PackageTags>
-    <Copyright>Copyright (c) 2017-2018 Goto10 s.r.o.</Copyright>
+    <Copyright>Copyright (c) 2018 Goto10 s.r.o.</Copyright>
     <Company>Goto10</Company>
     <RepositoryUrl>https://github.com/goto10hq/Oogi2.AspNetCore.Identity</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/goto10hq/Oogi2.AspNetCore.Identity/master/oogi2.aspnetcoreidentity-icon.png</PackageIconUrl>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.4.0.0</FileVersion>
+    <AssemblyVersion>1.5.1.0</AssemblyVersion>
+    <FileVersion>1.5.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
